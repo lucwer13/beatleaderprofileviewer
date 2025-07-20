@@ -15,11 +15,11 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Beatleader Profile Viewer")
         self.setGeometry(700, 300, 500, 500)
-        self.setWindowIcon(QIcon(resource_path('assets/beatleaderIcon.png')))
+        self.setWindowIcon(QIcon(resource_path('assests/beatleaderIcon.png')))
         self.setStyleSheet("background-color: #242424;")
 
         # Load custom font
-        QFontDatabase.addApplicationFont(resource_path("assets/BLfont.ttf"))
+        QFontDatabase.addApplicationFont(resource_path("assests/BLfont.ttf"))
         self.font = QFont("BLfont", 24)
 
         # Make the labels
@@ -27,6 +27,7 @@ class MainWindow(QMainWindow):
         self.displayrank = QLabel(" ", self)
         self.displaypp = QLabel(" ", self)
         self.displayavgrank = QLabel(" ", self)
+        self.displayProfilePicture = QLabel(" ", self)
 
         # Set positions
         self.displayname.setGeometry(0, 100, 500, 50)
@@ -42,7 +43,7 @@ class MainWindow(QMainWindow):
 
         # Icon in the window
         icon = QLabel(self)
-        icon_pixmap = QPixmap(resource_path('assets/beatleaderIcon.png'))
+        icon_pixmap = QPixmap(resource_path('assests/beatleaderIcon.png'))
         icon.setPixmap(icon_pixmap)
         icon.setScaledContents(True)
         icon.setGeometry((self.width() - 100) // 2, 0, 100, 100)
@@ -69,6 +70,7 @@ class MainWindow(QMainWindow):
     def sendData(self):
         user_id = self.idInput.text()
         self.display_profile(user_id)
+        self.displaypfp(user_id)
 
     def display_profile(self, user_id):
         name = getBLdata.getName(user_id)
@@ -80,6 +82,20 @@ class MainWindow(QMainWindow):
         self.displayrank.setText(rank)
         self.displaypp.setText(str(pp))
         self.displayavgrank.setText(avg_rank)
+
+    def displaypfp(self, user_id):
+        # Profile picture
+        pixmap = getBLdata.getAvatarPixmap(user_id)
+        #print(user_id)
+        if pixmap:
+            pixmap.scaled(100,100)
+            self.displayProfilePicture.setPixmap(pixmap)
+            self.displayProfilePicture.setGeometry(0, 100, 100, 100)
+            self.displayProfilePicture.setScaledContents(True)
+            self.displayProfilePicture.move(10,10)
+            self.displayProfilePicture.show()
+        #else:
+            #print("error handeling play avatar")
 
 def main():
     app = QApplication(sys.argv)

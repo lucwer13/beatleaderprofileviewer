@@ -1,4 +1,5 @@
 import requests
+from PyQt5.QtGui import QPixmap
 
 class getBLdata:
 
@@ -47,3 +48,23 @@ class getBLdata:
                         
                 else:
                                 return f"error {request.status_code}"
+                
+        def getAvatarPixmap(id):
+                base_url = "https://api.beatleader.xyz"
+                try:
+                        request = requests.get(f"{base_url}/player/{id}")
+                        request.raise_for_status()
+                        data = request.json()
+                        avatar_url = data.get("avatar")
+                        if avatar_url:
+                                image_response = requests.get(avatar_url)
+                                image_response.raise_for_status()
+                                pixmap = QPixmap()
+                                pixmap.loadFromData(image_response.content)
+                                return pixmap
+                        else:
+                                #print("Avatar URL not found.")
+                                return None
+                except requests.RequestException as e:
+                        #print("Error fetching avatar image:", e)
+                        return None
