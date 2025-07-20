@@ -1,95 +1,91 @@
 import sys
 import os
-import time
 from PyQt5.QtWidgets import *
-from PyQt5 import QtCore, QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from beatleaderApi import getBLdata
 
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and PyInstaller """
+    base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
+    return os.path.join(base_path, relative_path)
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Beatleader Profile viewer")
-        self.setGeometry(700,300,500,500)
-        self.setWindowIcon(QIcon('BeatleaderIcon.png'))
+        self.setWindowTitle("Beatleader Profile Viewer")
+        self.setGeometry(700, 300, 500, 500)
+        self.setWindowIcon(QIcon(resource_path('assets/beatleaderIcon.png')))
         self.setStyleSheet("background-color: #242424;")
 
-        # Making the labels
+        # Load custom font
+        QFontDatabase.addApplicationFont(resource_path("assets/BLfont.ttf"))
+        self.font = QFont("BLfont", 24)
+
+        # Make the labels
         self.displayname = QLabel(" ", self)
         self.displayrank = QLabel(" ", self)
         self.displaypp = QLabel(" ", self)
         self.displayavgrank = QLabel(" ", self)
 
-        #Positions of the labels
-        self.displayname.setGeometry(0,100,500,50)
-        self.displayrank.setGeometry(0,150,500,50)
-        self.displaypp.setGeometry(0,200,500,50)
-        self.displayavgrank.setGeometry(0,250,500,50)
+        # Set positions
+        self.displayname.setGeometry(0, 100, 500, 50)
+        self.displayrank.setGeometry(0, 150, 500, 50)
+        self.displaypp.setGeometry(0, 200, 500, 50)
+        self.displayavgrank.setGeometry(0, 250, 500, 50)
 
-        # Styling the labels
+        # Style labels
         self.style(self.displayname)
         self.style(self.displayrank)
         self.style(self.displaypp)
         self.style(self.displayavgrank)
 
-        # Icon in the top of the window
-        iconpath = QPixmap('BeatleaderIcon.png')
+        # Icon in the window
         icon = QLabel(self)
-        icon.setPixmap(iconpath)
+        icon_pixmap = QPixmap(resource_path('assets/beatleaderIcon.png'))
+        icon.setPixmap(icon_pixmap)
         icon.setScaledContents(True)
-        icon.setGeometry(0, 0, 100, 100)
-        icon.setGeometry((self.width() - icon.width()) // 2, 0, icon.height(), icon.width())
+        icon.setGeometry((self.width() - 100) // 2, 0, 100, 100)
 
-        # Makes and styles the input bar
+        # Input bar
         self.idInput = QLineEdit(self)
         self.idInput.setPlaceholderText("Enter a Beatleader ID")
-        self.idInput.setGeometry(0,350,400,50)
-        self.idInput.setStyleSheet("font-size: 25px; background-color: white;")
+        self.idInput.setGeometry(0, 350, 400, 50)
+        self.idInput.setStyleSheet("font-size: 25px; background-color: white; font-family: BLfont;")
 
-        # Makes and styles the submit button
+        # Submit button
         self.submit = QPushButton("Submit", self)
-        self.submit.setGeometry(400,350,100,50)
-        self.submit.setStyleSheet("font-size: 25px; background-color: white;")
+        self.submit.setGeometry(400, 350, 100, 50)
+        self.submit.setStyleSheet("font-size: 25px; background-color: white; font-family: BLfont;")
+        self.submit.setFont(self.font)
 
-        # Input of the ID and sending it to the display_profile function
         self.submit.clicked.connect(self.sendData)
 
+    def style(self, label):
+        label.setFont(QFont("BLfont", 30))
+        label.setStyleSheet("color: white; font-size: 30px;")
+        label.setAlignment(Qt.AlignCenter)
+
     def sendData(self):
-        print("Button Clicked!")
-        id = self.idInput.text()
-        print(id)
-        self.display_profile(id)
+        user_id = self.idInput.text()
+        self.display_profile(user_id)
 
-
-    # Styles the labels
-    def style(self, theName):
-        try:
-            theName.setFont(QFont("Arial", 30))
-            theName.setStyleSheet("color: white; font-size: 30px;")
-            theName.setAlignment(Qt.AlignCenter)
-        except:
-            print("error styling")
-
-    # Sets the API data on the screen
-    def display_profile(self, id):
-        name = getBLdata.getName(id)
-        rank = getBLdata.getRank(id)
-        pp = getBLdata.getPP(id)
-        rankedacc = getBLdata.getAvgRank(id)
+    def display_profile(self, user_id):
+        name = getBLdata.getName(user_id)
+        rank = getBLdata.getRank(user_id)
+        pp = getBLdata.getPP(user_id)
+        avg_rank = getBLdata.getAvgRank(user_id)
 
         self.displayname.setText(name)
         self.displayrank.setText(rank)
         self.displaypp.setText(str(pp))
-        self.displayavgrank.setText(rankedacc)
-
+        self.displayavgrank.setText(avg_rank)
 
 def main():
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
-
 
 if __name__ == "__main__":
     main()
